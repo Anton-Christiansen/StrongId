@@ -1,227 +1,127 @@
-using System;
 using System.Linq;
+using System.Text;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace StrongId;
 
 [Generator]
 public class StrongIdSourceGenerator : ISourceGenerator
 {
-    //private string _parameterType = "System.Guid";
-    
-    
-    private const string EndNamespaceText = """
-
-                                            }
-
-                                            """;
-    
-    
     public void Initialize(GeneratorInitializationContext context)
     {
-        // throw new System.NotImplementedException();
-        //var creator = new StrongIdSyntaxReceiver();
+        context.RegisterForSyntaxNotifications(() => new StrongIdSyntaxReceiver());
     }
 
     public void Execute(GeneratorExecutionContext context)
     {
-        
-        
-        
-        
-        foreach (var syntaxTree in context.Compilation.SyntaxTrees)
+        if (context.SyntaxReceiver is not StrongIdSyntaxReceiver receiver)
         {
-            var namespaceDeclarations =
-                syntaxTree.GetRoot().DescendantNodes().OfType<FileScopedNamespaceDeclarationSyntax>().ToArray();
-
-
-            foreach (var namespaceDeclaration in namespaceDeclarations)
-            {
-                string @namespace = namespaceDeclaration.Name.ToString();
-
-
-
-                var children = namespaceDeclaration.ChildNodes().OfType<ClassDeclarationSyntax>().ToArray();
-                foreach (var child in children)
-                {
-                    var result = TraverseNamespaceForMarkedClasses(child, context);
-                    if (result.StrongIdClassFound)
-                    {
-                        string text = StartNamespaceText(@namespace);
-                        text += result.GenerativeText;
-                        text += EndNamespaceText;
-
-                        context.AddSource($"{child.Identifier.Text}.g.cs", text);
-
-                    }
-                }
-
-            }
+            return;
         }
+
+        foreach (var container in receiver.Ingredients)
+        {
+            var record = GenerateStrongIdRecordText(container);
+            var partial = GenerateStrongIdPartialClass(container);
+            
+            context.AddSource($"{container.Class}Id.g.cs", record);
+            context.AddSource($"{container.Class}.g.cs", partial);
+        }
+        
     }
 
 
-    private StrongIdSearcherResult TraverseNamespaceForMarkedClasses(SyntaxNode syntaxNode,
-        GeneratorExecutionContext context, int indent = 1)
+
+
+
+    private static string GenerateStrongIdPartialClass(StrongIdIngredients ingredients)
     {
-        bool found = false;
-        string text = string.Empty;
+        var strBuilder = new StringBuilder();
+        StartNamespaceText(ingredients.Namespace, strBuilder);
 
-        if (syntaxNode is ClassDeclarationSyntax classDeclaration)
+        int indent = 0;
+        foreach (string @class in ingredients.Classes)
         {
-            var className = classDeclaration.Identifier.Text;
-            text += StartPartialClass(className, indent);
-
-            foreach (var attributeList in classDeclaration.AttributeLists)
-            {
-                foreach (var attribute in attributeList.Attributes)
-                {
-                    if (attribute.Name.ToFullString() == "StrongId")
-                    {
-                        found = true;
-                        var parameters = GetAttributeParameters(attribute);
-                        
-                        var record = GenerateStrongIdRecordText(className, parameters.ParameterType);
-                        context.AddSource($"{className}Id.g.cs", record);
-                        text += GenerateStrongIdPropertyText(className, indent + 1, parameters.ParameterName);
-                    }
-                }
-            }
+            StartPartialClass(@class, indent, strBuilder);
+            indent++;
         }
         
-
-        var kids = syntaxNode.ChildNodes().ToArray();
-        foreach (var kid in kids)
+        StartPartialClass(ingredients.Class, indent, strBuilder);
+        indent++;
+        GenerateStrongIdPropertyText(ingredients.Class, indent, ingredients.Parameters.ParameterName, strBuilder);
+        
+        
+        for (; indent > 0; indent--)
         {
-            if (kid is null) continue;
-
-            var result = TraverseNamespaceForMarkedClasses(kid, context, indent + 1);
-            if (result.StrongIdClassFound)
-            {
-                found = true;
-                text += result.GenerativeText;
-            }
+            EndPartialClass(indent - 1, strBuilder);
         }
 
-        text += EndPartialClass(indent);
-
-
-        return new StrongIdSearcherResult(found, text);
+        return strBuilder.ToString();
     }
-
-    private string GenerateStrongIdRecordText(string className, string parameterType)
+    
+    
+    private static string GenerateStrongIdRecordText(StrongIdIngredients ingredients)
     {
-
         return $$"""
                  // <auto-generated/>
 
                  namespace SourceGenerated.Ids;
 
-                 public sealed record {{className}}Id
+                 public sealed record {{ingredients.Class}}Id
                  {
-                     private {{className}}Id({{parameterType}} id)
+                     private {{ingredients.Class}}Id({{ingredients.Parameters.ParameterType}} id)
                      {
                          Value = id;
                      }
                  
-                     public {{parameterType}} Value { get; init; }
+                     public {{ingredients.Parameters.ParameterType}} Value { get; init; }
                  
-                     public static {{className}}Id Create({{parameterType}} id) => new {{className}}Id(id);
+                     public static {{ingredients.Class}}Id Create({{ingredients.Parameters.ParameterType}} id) => new {{ingredients.Class}}Id(id);
                  }
 
                  """;
     }
 
 
-
-    private string GetIndention(int indent)
+    private static string GetIndention(int indent)
     {
         return new string(Enumerable.Range(0, indent).Select(x => '\t').ToArray());
     }
 
 
-    private string StartPartialClass(string className, int indent)
+    private static void StartPartialClass(string className, int indent, StringBuilder strBuilder)
     {
         string indention = GetIndention(indent);
-        return $$"""
-
-                 {{indention}}public partial class {{className}}
-                 {{indention}}{
-
-                 """;
+        strBuilder.AppendLine($$"""
+                     {{indention}}public partial class {{className}}
+                     {{indention}}{
+                     """);
     }
 
-    private string GenerateStrongIdPropertyText(string className, int indent, string parameterName)
+    private static void GenerateStrongIdPropertyText(string className, int indent, string parameterName, StringBuilder strBuilder)
     {
         string indention = GetIndention(indent);
-        return $@"{indention}public {className}Id {parameterName} {{ get; private set; }}";
+        strBuilder.AppendLine($@"{indention}public {className}Id {parameterName} {{ get; private set; }}");
     }
 
-    private string EndPartialClass(int indent)
+    private static void EndPartialClass(int indent, StringBuilder strBuilder)
     {
         string indention = GetIndention(indent);
-        return $$"""
-
-                 {{indention}}}
-                 """;
+        strBuilder.AppendLine($$"""
+                     {{indention}}}
+                     """);
     }
 
 
-    private string StartNamespaceText(string @namespace)
+    private static void StartNamespaceText(string @namespace, StringBuilder strBuilder)
     {
-        return $$"""
-                 // <auto-generated/>
+        strBuilder.AppendLine($$"""
+                     // <auto-generated/>
 
-                 using SourceGenerated.Ids;
+                     using SourceGenerated.Ids;
 
-                 namespace {{@namespace}}
-                 {
+                     namespace {{@namespace}};
 
-                 """;
-    }
-    
-
-    private StrongIdParameters GetAttributeParameters(AttributeSyntax attribute)
-    {
-        string parametertype = typeof(Guid).ToString();
-        string parameterName = "Id";
-        
-        var arguments = attribute.ArgumentList?.Arguments ?? [];
-        foreach (var syntax in arguments)
-        {
-            var parameter = syntax.NameEquals?.Name.ToString() ?? string.Empty;
-            
-            switch (parameter)
-            {
-                case "ParameterType":
-                {
-                    var expression = syntax.Expression.ToString();
-                    parametertype = expression.Trim().Substring(7, expression.Length - 8);
-                    break;
-                }
-
-                case "ParameterName":
-                {
-                    parameterName = syntax.Expression.ToString().Trim('"');
-                    break;
-                }
-            }
-        }
-        
-        return new StrongIdParameters(parametertype, parameterName);
-        ;
-    }
-
-    private record StrongIdSearcherResult(bool StrongIdClassFound, string GenerativeText)
-    {
-        public bool StrongIdClassFound { get; } = StrongIdClassFound;
-        public string GenerativeText { get; } = GenerativeText;
-    }
-
-    private record StrongIdParameters(string ParameterType, string ParameterName)
-    {
-        public string ParameterType { get; set; } = ParameterType;
-        public string ParameterName { get; set; } = ParameterName;
+                     """);
     }
 }

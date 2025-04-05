@@ -64,7 +64,7 @@ will generate the following files:
 
     public sealed record SampleEntityId
     {
-      private SampleEntityId(System.Guid id)
+      private SampleEntityId(int id)
       {
         Value = id;
       }

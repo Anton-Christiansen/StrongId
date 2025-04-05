@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <IsPackable>false</IsPackable>
+        <IsPackable>true</IsPackable>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
 
@@ -10,7 +10,7 @@
         <IsRoslynComponent>true</IsRoslynComponent>
 
         <RootNamespace>StrongId</RootNamespace>
-        <PackageId>StrongId</PackageId>
+        <PackageId>AntonChristiansen_StrongId.1.0.0.Test</PackageId>
     </PropertyGroup>
 
     <ItemGroup>

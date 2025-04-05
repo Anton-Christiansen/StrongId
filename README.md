@@ -43,3 +43,41 @@ will generate the following files:
     {
       public SampleEntityId Id { get; private set; }
     }
+
+
+
+
+
+
+
+Example 2:
+
+    [StrongId(ParameterType = typeof(int), ParameterName = "PrimaryKey")]
+    public partial class SampleEntity
+    {
+      ...
+    }
+
+will generate the following files:
+
+1
+
+    public sealed record SampleEntityId
+    {
+      private SampleEntityId(int id)
+      {
+        Value = id;
+      }
+
+      public int Value { get; init; }
+
+      public static SampleEntityId Create(int id) => new SampleEntityId(id);
+    }
+    
+2
+
+    public partial class SampleEntity
+    {
+      public SampleEntityId PrimaryKey { get; private set; }
+    }
+

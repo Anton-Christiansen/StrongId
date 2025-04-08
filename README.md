@@ -9,9 +9,9 @@ Available as a nuget package:
 
 This will then generate two files:
 
-1) A sealed record with the class same appended with Id, with a single property (Guid) called Value.
+1) A sealed record with the class same appended with Id, with a single property (defaults to System.Guid, override it with ParameterType) called Value.
 
-2) A partial class adding the strongly typed identifier as property "Id".
+2) A partial class adding the strongly typed identifier as property (defaults to: "Id", override it with ParameterName).
 
 Example:
 

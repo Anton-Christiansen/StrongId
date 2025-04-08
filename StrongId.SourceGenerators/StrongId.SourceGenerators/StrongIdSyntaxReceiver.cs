@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace StrongId;
+namespace StrongId.SourceGenerators;
 
 internal class StrongIdSyntaxReceiver : ISyntaxReceiver
 {

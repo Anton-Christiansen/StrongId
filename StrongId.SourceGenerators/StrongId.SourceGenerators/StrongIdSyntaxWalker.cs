@@ -4,8 +4,16 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace StrongId;
+namespace StrongId.SourceGenerators;
 
+
+/// <summary>
+/// It will walk down from "FileScopedNamespaceDeclarationSyntax" (namespace)
+/// into "ClassDeclarationSyntax" (class)
+/// into "AttributeSyntax" (the attribute)
+/// And then follow the tree down for any nested classes
+/// It will store the namespace, and the outer classes, and the marked class
+/// </summary>
 internal class StrongIdSyntaxWalker : CSharpSyntaxWalker
 {
     internal List<StrongIdIngredients> Ingredients { get; } = [];
@@ -55,7 +63,6 @@ internal class StrongIdSyntaxWalker : CSharpSyntaxWalker
         _currentNamespace = null;
     }
     
-    
     private static StrongIdParameters GetAttributeParameters(AttributeSyntax attribute)
     {
         string parametertype = typeof(Guid).ToString();
@@ -85,5 +92,6 @@ internal class StrongIdSyntaxWalker : CSharpSyntaxWalker
         
         return new StrongIdParameters(parametertype, parameterName);
     }
+    
     
 }

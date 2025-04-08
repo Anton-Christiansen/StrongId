@@ -3,7 +3,7 @@
   "profiles": {
     "DebugRoslynSourceGenerator": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../StrongId.Sample/StrongId.Sample.csproj"
+      "targetProject": "../../StrongId/StrongId.csproj"
     }
   }
 }

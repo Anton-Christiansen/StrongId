@@ -1,4 +1,4 @@
-namespace StrongId;
+namespace StrongId.SourceGenerators;
 
 internal record StrongIdParameters(string ParameterType, string ParameterName)
 {

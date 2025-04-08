@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <RootNamespace>StrongId</RootNamespace>
+
+        <PackageId>Anton_Christiansen.StrongId</PackageId>
+        <Version>2.0.5.1</Version>
+        <Authors>Anton Christiansen</Authors>
+        <Company>Freestyle</Company>
+        <IsPackable>true</IsPackable>
+
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\StrongId.SourceGenerators\StrongId.SourceGenerators\StrongId.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+
+        <None Include="Docs/README.md" Pack="true" PackagePath="/" />
+
+        <None Include="..\StrongId.SourceGenerators\StrongId.SourceGenerators\bin\$(Configuration)\netstandard2.0\StrongId.SourceGenerators.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    </ItemGroup>
+</Project>

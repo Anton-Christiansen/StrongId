@@ -6,7 +6,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <RootNamespace>StrongId.Tests</RootNamespace>
+        <RootNamespace>StrongId.SourceGenerators.Tests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\StrongId\StrongId.csproj"/>
+        <ProjectReference Include="..\StrongId.SourceGenerators\StrongId.SourceGenerators.csproj"/>
     </ItemGroup>
 
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace StrongId.SourceGenerators;
-
+namespace StrongId.SourceGenerators.Models;
+/*
 internal record StrongIdIngredients(string Namespace, List<string> Classes, string Class, StrongIdParameters Parameters)
 {
     /// <summary>
@@ -20,3 +20,4 @@ internal record StrongIdIngredients(string Namespace, List<string> Classes, stri
     internal string Class { get; set; } = Class;
     internal StrongIdParameters Parameters { get; } = Parameters;
 }
+*/

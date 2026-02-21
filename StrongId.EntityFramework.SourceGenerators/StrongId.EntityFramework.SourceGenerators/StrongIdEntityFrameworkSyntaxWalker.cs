@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using StrongId.EntityFramework.SourceGenerators.Models;
 
-namespace StrongId.SourceGenerators;
+namespace StrongId.EntityFramework.SourceGenerators;
 
 
 /// <summary>
@@ -14,7 +14,7 @@ namespace StrongId.SourceGenerators;
 /// And then follow the tree down for any nested classes
 /// It will store the namespace, and the outer classes, and the marked class
 /// </summary>
-internal class StrongIdSyntaxWalker : CSharpSyntaxWalker
+internal class StrongIdEntityFrameworkSyntaxWalker : CSharpSyntaxWalker
 {
     internal List<StrongIdIngredients> Ingredients { get; } = [];
     
@@ -65,7 +65,7 @@ internal class StrongIdSyntaxWalker : CSharpSyntaxWalker
     
     private static StrongIdParameters GetAttributeParameters(AttributeSyntax attribute)
     {
-        string parametertype = typeof(Guid).ToString();
+        string parametertype = "System.Guid";
         string parameterName = "Id";
         
         var arguments = attribute.ArgumentList?.Arguments ?? [];

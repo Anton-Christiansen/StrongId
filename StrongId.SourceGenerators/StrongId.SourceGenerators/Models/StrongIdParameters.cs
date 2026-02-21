@@ -1,7 +1,9 @@
-namespace StrongId.SourceGenerators;
+namespace StrongId.SourceGenerators.Models;
 
+/*
 internal record StrongIdParameters(string ParameterType, string ParameterName)
 {
     internal string ParameterType { get; set; } = ParameterType;
     internal string ParameterName { get; set; } = ParameterName;
 }
+*/
